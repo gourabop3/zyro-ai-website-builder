@@ -161,3 +161,38 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - [Tailwind CSS](https://tailwindcss.com/) for styling
 - [Prisma](https://www.prisma.io/) for database management
 
+## 🚀 Deployment
+
+You can easily deploy Zyro to Vercel or any platform that supports Next.js 15 and Node.js 18+.
+
+### Deploy to Vercel
+
+1. [Fork](https://github.com/lwshakib/zyro-ai-website-builder) this repository or push your code to your own GitHub account.
+2. Go to [Vercel](https://vercel.com/) and import your repository.
+3. Set the following environment variables in your Vercel project settings:
+   - `DATABASE_URL`
+   - `NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY`
+   - `CLERK_SECRET_KEY`
+   - `NEXT_PUBLIC_CLERK_SIGN_IN_URL`
+   - `NEXT_PUBLIC_CLERK_SIGN_UP_URL`
+   - `NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL`
+   - `NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL`
+   - `GOOGLE_GENERATIVE_AI_API_KEY`
+4. Make sure your PostgreSQL database is accessible from Vercel (consider using a managed service like Supabase, Neon, or Railway).
+5. Deploy! Vercel will handle the build and deployment process automatically.
+
+### Other Platforms
+
+- You can deploy to any platform that supports Node.js and Next.js (e.g., Netlify, AWS, DigitalOcean).
+- Ensure all environment variables are set and the database is accessible.
+- Run migrations on your production database:
+
+  ```bash
+  npx prisma migrate deploy
+  ```
+
+## 🖥️ Demo
+
+Check out a quick demo of Zyro in action:
+
+![Zyro Demo](assets/demo.gif)
