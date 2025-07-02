@@ -16,7 +16,7 @@ export async function GET(
       );
     }
 
-    const workspaceId = params.id;
+    const workspaceId = (await params).id;
     const workspaces = await prisma.workspace.findUnique({
       where: {
         id: workspaceId,

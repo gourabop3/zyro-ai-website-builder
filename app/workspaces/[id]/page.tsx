@@ -129,9 +129,9 @@ function page({}: Props) {
         method: "GET",
       });
       const result = await res.json();
-      console.log(result);
-      if (result.data.fileVersions?.length > 0) {
-        setFiles(JSON.parse(result.data.fileVersions[0].files));
+
+      if (result.data.filesVersions?.length > 0) {
+        setFiles(JSON.parse(result.data.filesVersions[0].files));
       }
       setWorkspace(result.data);
       setChatMessages(result.data.chatMessages);

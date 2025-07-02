@@ -1,3 +1,4 @@
+import { UserButton } from "@clerk/nextjs";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -12,12 +13,17 @@ export default function Header() {
           <Image src="/logo.svg" alt="Zyro Logo" width={28} height={28} />
           Zyro
         </Link>
-        <Link
-          href="/pricing"
-          className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
-        >
-          Pricing
-        </Link>
+        <div className="flex gap-8 items-center">
+          <Link
+            href="/pricing"
+            className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors"
+          >
+            Pricing
+          </Link>
+          <div className="flex justify-center items-center">
+            <UserButton />
+          </div>
+        </div>
       </div>
     </header>
   );

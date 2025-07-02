@@ -13,8 +13,7 @@ export const metadata: Metadata = {
     "create website",
     "drag and drop",
   ],
-  authors: [{ name: "Zyro Team" }],
-  viewport: "width=device-width, initial-scale=1",
+  authors: [{ name: "Shakib Khan" }],
   icons: {
     icon: [
       { url: "/favicon/favicon-16x16.png", sizes: "16x16", type: "image/png" },
