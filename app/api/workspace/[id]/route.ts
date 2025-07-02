@@ -2,9 +2,10 @@ import { prisma } from "@/lib/prisma";
 import { currentUser } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
 
+
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  {params}: { params: { id: string } }
 ) {
   try {
     const user = await currentUser();
@@ -30,7 +31,7 @@ export async function GET(
           take: 1,
         },
         title: true,
-        id: true
+        id: true,
       },
     });
 

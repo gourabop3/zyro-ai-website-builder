@@ -60,9 +60,14 @@ Zyro is a modern, AI-powered website builder that allows users to create stunnin
    # Authentication
    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
    CLERK_SECRET_KEY=your_clerk_secret_key
+   NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+   NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+   NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/workspaces
+   NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/workspaces
 
    # AI
    GOOGLE_GENERATIVE_AI_API_KEY=your_gemini_api_key
+
    ```
 
 4. **Set up the database**
