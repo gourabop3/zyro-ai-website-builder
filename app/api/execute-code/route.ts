@@ -33,17 +33,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Determine the best template to use
+    // Use the vibegourab template
     const selectedTemplate = template || getTemplateForCode(filename, code);
     const templateConfig = getTemplate(selectedTemplate);
 
     console.log(`Using E2B template: ${selectedTemplate} for file: ${filename}`);
 
     try {
-      // Create E2B sandbox with specific template
-      // Note: For now using default sandbox, but you can specify template once they're built
+      // Create E2B sandbox with your vibegourab template
       const sandbox = await Sandbox.create({
-        // template: selectedTemplate // Uncomment when templates are built and deployed
+        template: selectedTemplate // Using your existing vibegourab template
       });
 
       try {
@@ -71,7 +70,7 @@ export async function POST(req: NextRequest) {
     } catch (sandboxError) {
       console.error("Sandbox creation/execution error:", sandboxError);
       
-      // Fallback to basic execution if template-specific sandbox fails
+      // Fallback to default code interpreter if template-specific sandbox fails
       try {
         const basicSandbox = await Sandbox.create();
         try {
@@ -83,8 +82,8 @@ export async function POST(req: NextRequest) {
               stderr: execution.logs.stderr.join('\n'),
               results: execution.results,
               error: execution.error,
-              template: 'default',
-              warning: 'Used fallback template due to template-specific error'
+              template: 'default-fallback',
+              warning: 'Used fallback template due to vibegourab template error'
             }
           });
         } finally {

@@ -1,5 +1,5 @@
 // E2B Template Configuration for Zyro AI Website Builder
-// Similar to vibecode-ai template management
+// Using existing vibegourab template
 
 export interface E2BTemplate {
   id: string;
@@ -9,77 +9,29 @@ export interface E2BTemplate {
   packages: string[];
 }
 
-// Available E2B templates
+// Available E2B templates - using your existing vibegourab template
 export const E2B_TEMPLATES: Record<string, E2BTemplate> = {
-  'vieb-python': {
-    id: 'vieb-python',
-    name: 'Python Data Science',
-    description: 'Python environment with data science, AI/ML, and web development packages',
-    languages: ['python', 'py'],
+  'vibegourab': {
+    id: 'vibegourab',
+    name: 'Vibegourab Universal Environment',
+    description: 'Your existing E2B template with pre-configured development environment',
+    languages: ['python', 'javascript', 'typescript', 'py', 'js', 'ts', 'jsx', 'tsx'],
     packages: [
-      'numpy', 'pandas', 'matplotlib', 'seaborn', 'plotly', 'scipy', 'scikit-learn',
-      'flask', 'fastapi', 'requests', 'beautifulsoup4', 'openai', 'anthropic',
-      'Pillow', 'opencv-python', 'jupyter', 'ipython'
+      'python3', 'nodejs', 'npm', 'pip', 'jupyter', 'pandas', 'numpy', 
+      'matplotlib', 'requests', 'flask', 'fastapi', 'react', 'next'
     ]
-  },
-  'vieb-fullstack': {
-    id: 'vieb-fullstack',
-    name: 'Full-Stack Development',
-    description: 'Node.js + Python environment for full-stack web development',
-    languages: ['javascript', 'typescript', 'python', 'js', 'ts', 'py', 'jsx', 'tsx'],
-    packages: [
-      'next', 'react', 'vue', 'express', 'fastapi', 'flask', 'prisma',
-      'tailwindcss', 'typescript', 'pandas', 'numpy'
-    ]
-  },
-  'vieb-basic': {
-    id: 'vieb-basic',
-    name: 'Basic Code Execution',
-    description: 'Lightweight environment for basic code execution',
-    languages: ['python', 'javascript', 'bash', 'shell'],
-    packages: ['python3', 'nodejs', 'npm']
   }
 };
 
-// Default template fallback
-export const DEFAULT_TEMPLATE = 'vieb-python';
+// Default template - your existing one
+export const DEFAULT_TEMPLATE = 'vibegourab';
 
 /**
  * Determine the best E2B template based on file extension or code content
+ * Since we only have one template, always return it
  */
 export function getTemplateForCode(filename: string, code?: string): string {
-  const extension = filename.split('.').pop()?.toLowerCase();
-  
-  // Check by file extension
-  if (extension) {
-    for (const [templateId, template] of Object.entries(E2B_TEMPLATES)) {
-      if (template.languages.includes(extension)) {
-        return templateId;
-      }
-    }
-  }
-  
-  // Check by code content if filename doesn't help
-  if (code) {
-    const lowerCode = code.toLowerCase();
-    
-    // Check for specific imports/frameworks
-    if (lowerCode.includes('import pandas') || 
-        lowerCode.includes('import numpy') || 
-        lowerCode.includes('import matplotlib') ||
-        lowerCode.includes('import seaborn') ||
-        lowerCode.includes('import plotly')) {
-      return 'vieb-python';
-    }
-    
-    if (lowerCode.includes('import react') || 
-        lowerCode.includes('from next') || 
-        lowerCode.includes('import express') ||
-        lowerCode.includes('import fastapi')) {
-      return 'vieb-fullstack';
-    }
-  }
-  
+  // Always use the vibegourab template since it's the only one available
   return DEFAULT_TEMPLATE;
 }
 
@@ -87,7 +39,7 @@ export function getTemplateForCode(filename: string, code?: string): string {
  * Get template configuration
  */
 export function getTemplate(templateId: string): E2BTemplate | null {
-  return E2B_TEMPLATES[templateId] || null;
+  return E2B_TEMPLATES[templateId] || E2B_TEMPLATES[DEFAULT_TEMPLATE];
 }
 
 /**
