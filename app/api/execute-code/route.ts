@@ -58,7 +58,6 @@ export async function POST(req: NextRequest) {
             stderr: execution.logs.stderr.join('\n'),
             results: execution.results,
             error: execution.error,
-            executionTime: execution.executionTime,
             template: selectedTemplate,
             templateInfo: templateConfig,
           }
@@ -66,8 +65,8 @@ export async function POST(req: NextRequest) {
 
         return NextResponse.json(response);
       } finally {
-        // Always close the sandbox
-        await sandbox.close();
+        // Always terminate the sandbox
+        await sandbox.kill();
       }
     } catch (sandboxError) {
       console.error("Sandbox creation/execution error:", sandboxError);
@@ -84,13 +83,12 @@ export async function POST(req: NextRequest) {
               stderr: execution.logs.stderr.join('\n'),
               results: execution.results,
               error: execution.error,
-              executionTime: execution.executionTime,
               template: 'default',
               warning: 'Used fallback template due to template-specific error'
             }
           });
         } finally {
-          await basicSandbox.close();
+          await basicSandbox.kill();
         }
       } catch (fallbackError) {
         throw sandboxError; // Throw original error if fallback also fails

@@ -31,10 +31,10 @@ async function executeWithE2B(pythonCode: string) {
         stderr: execution.logs.stderr.join('\n'),
         results: execution.results,
         error: execution.error,
-        executionTime: execution.executionTime,
       };
     } finally {
-      await sandbox.close();
+      // Use kill method to terminate the sandbox
+      await sandbox.kill();
     }
   } catch (error) {
     console.error("E2B execution error:", error);
