@@ -10,13 +10,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
-
 model Workspace {
-  id            String         @id @default(uuid())
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
   title         String
   createdAt     DateTime       @default(now())
   updatedAt     DateTime       @updatedAt
@@ -26,8 +25,8 @@ model Workspace {
 }
 
 model ChatMessage {
-  id          String    @id @default(uuid())
-  workspaceId String
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  workspaceId String    @db.ObjectId
   sender      String
   message     String
   createdAt   DateTime  @default(now())
@@ -36,8 +35,8 @@ model ChatMessage {
 }
 
 model FilesVersion {
-  id          String    @id @default(uuid())
-  workspaceId String
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  workspaceId String    @db.ObjectId
   files       Json
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
