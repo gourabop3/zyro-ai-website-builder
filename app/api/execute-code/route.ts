@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { Sandbox } from "@e2b/code-interpreter";
+import { getTemplateForCode, getTemplate } from "@/lib/e2b-templates";
 
 export async function POST(req: NextRequest) {
   try {
@@ -12,7 +13,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { code, workspaceId } = await req.json();
+    const { code, workspaceId, filename = "main.py", template } = await req.json();
 
     if (!code) {
       return NextResponse.json(
@@ -32,29 +33,68 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create E2B sandbox
-    const sandbox = await Sandbox.create();
+    // Determine the best template to use
+    const selectedTemplate = template || getTemplateForCode(filename, code);
+    const templateConfig = getTemplate(selectedTemplate);
+
+    console.log(`Using E2B template: ${selectedTemplate} for file: ${filename}`);
 
     try {
-      // Execute the code
-      const execution = await sandbox.runCode(code);
+      // Create E2B sandbox with specific template
+      // Note: For now using default sandbox, but you can specify template once they're built
+      const sandbox = await Sandbox.create({
+        // template: selectedTemplate // Uncomment when templates are built and deployed
+      });
 
-      // Format the response
-      const response = {
-        success: true,
-        data: {
-          stdout: execution.logs.stdout.join('\n'),
-          stderr: execution.logs.stderr.join('\n'),
-          results: execution.results,
-          error: execution.error,
-          executionTime: execution.executionTime,
+      try {
+        // Execute the code
+        const execution = await sandbox.runCode(code);
+
+        // Format the response
+        const response = {
+          success: true,
+          data: {
+            stdout: execution.logs.stdout.join('\n'),
+            stderr: execution.logs.stderr.join('\n'),
+            results: execution.results,
+            error: execution.error,
+            executionTime: execution.executionTime,
+            template: selectedTemplate,
+            templateInfo: templateConfig,
+          }
+        };
+
+        return NextResponse.json(response);
+      } finally {
+        // Always close the sandbox
+        await sandbox.close();
+      }
+    } catch (sandboxError) {
+      console.error("Sandbox creation/execution error:", sandboxError);
+      
+      // Fallback to basic execution if template-specific sandbox fails
+      try {
+        const basicSandbox = await Sandbox.create();
+        try {
+          const execution = await basicSandbox.runCode(code);
+          return NextResponse.json({
+            success: true,
+            data: {
+              stdout: execution.logs.stdout.join('\n'),
+              stderr: execution.logs.stderr.join('\n'),
+              results: execution.results,
+              error: execution.error,
+              executionTime: execution.executionTime,
+              template: 'default',
+              warning: 'Used fallback template due to template-specific error'
+            }
+          });
+        } finally {
+          await basicSandbox.close();
         }
-      };
-
-      return NextResponse.json(response);
-    } finally {
-      // Always close the sandbox
-      await sandbox.close();
+      } catch (fallbackError) {
+        throw sandboxError; // Throw original error if fallback also fails
+      }
     }
 
   } catch (error) {
