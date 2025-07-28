@@ -41,9 +41,8 @@ export async function POST(req: NextRequest) {
 
     try {
       // Create E2B sandbox with your vibegourab template
-      const sandbox = await Sandbox.create({
-        template: selectedTemplate // Using your existing vibegourab template
-      });
+      // Correct syntax: Sandbox.create(template, options)
+      const sandbox = await Sandbox.create(selectedTemplate);
 
       try {
         // Execute the code
