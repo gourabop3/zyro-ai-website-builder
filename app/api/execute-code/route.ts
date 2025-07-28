@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { currentUser } from "@clerk/nextjs/server";
 import { Sandbox } from "@e2b/code-interpreter";
-import { getTemplateForCode, getTemplate } from "@/lib/e2b-templates";
+import { getTemplateForCode, getTemplate, getE2BConfig } from "@/lib/e2b-templates";
 
 export async function POST(req: NextRequest) {
   try {
@@ -22,84 +22,91 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if E2B API key is configured
-    if (!process.env.E2B_API_KEY) {
+    // Get E2B configuration
+    const e2bConfig = getE2BConfig();
+    
+    if (!e2bConfig.apiKey) {
       return NextResponse.json(
         { 
           success: false, 
-          message: "E2B API key not configured. Please set E2B_API_KEY environment variable." 
+          message: "E2B API key not configured. Please set E2B_API_KEY in environment variables." 
         },
         { status: 500 }
       );
     }
 
-    // Use the vibegourab template
+    // Determine which template to use
     const selectedTemplate = template || getTemplateForCode(filename, code);
-    const templateConfig = getTemplate(selectedTemplate);
-
-    console.log(`Using E2B template: ${selectedTemplate} for file: ${filename}`);
-
+    
     try {
-      // Create E2B sandbox with your vibegourab template
-      // Correct syntax: Sandbox.create(template, options)
-      const sandbox = await Sandbox.create(selectedTemplate);
+      // Create E2B sandbox with your vibegourab template and team configuration
+      const sandboxOptions: any = {};
+      
+      // Add team ID to options if available
+      if (e2bConfig.teamId) {
+        sandboxOptions.teamId = e2bConfig.teamId;
+      }
+
+      const sandbox = await Sandbox.create(selectedTemplate.id, sandboxOptions);
 
       try {
+        // Write the code to a file
+        await sandbox.files.write(filename, code);
+
         // Execute the code
         const execution = await sandbox.runCode(code);
 
-        // Format the response
-        const response = {
+        // Get results
+        const result = {
           success: true,
-          data: {
-            stdout: execution.logs.stdout.join('\n'),
-            stderr: execution.logs.stderr.join('\n'),
-            results: execution.results,
-            error: execution.error,
-            template: selectedTemplate,
-            templateInfo: templateConfig,
-          }
+          stdout: execution.stdout,
+          stderr: execution.stderr,
+          results: execution.results.map((result: any) => ({
+            type: result.type,
+            data: result.data,
+            ...(result.formats && { formats: result.formats })
+          })),
+          template: selectedTemplate.id,
+          filename
         };
 
-        return NextResponse.json(response);
+        return NextResponse.json(result);
+
       } finally {
-        // Always terminate the sandbox
-        await sandbox.kill();
+        // Clean up sandbox
+        await sandbox.close();
       }
-    } catch (sandboxError) {
-      console.error("Sandbox creation/execution error:", sandboxError);
+
+    } catch (sandboxError: any) {
+      console.error("E2B sandbox error:", sandboxError);
       
-      // Fallback to default code interpreter if template-specific sandbox fails
-      try {
-        const basicSandbox = await Sandbox.create();
-        try {
-          const execution = await basicSandbox.runCode(code);
-          return NextResponse.json({
-            success: true,
-            data: {
-              stdout: execution.logs.stdout.join('\n'),
-              stderr: execution.logs.stderr.join('\n'),
-              results: execution.results,
-              error: execution.error,
-              template: 'default-fallback',
-              warning: 'Used fallback template due to vibegourab template error'
-            }
-          });
-        } finally {
-          await basicSandbox.kill();
-        }
-      } catch (fallbackError) {
-        throw sandboxError; // Throw original error if fallback also fails
+      let errorMessage = "Failed to execute code in sandbox";
+      
+      if (sandboxError.message?.includes('template')) {
+        errorMessage = `Template '${selectedTemplate.id}' not found. Please check your E2B templates and team access.`;
+      } else if (sandboxError.message?.includes('team')) {
+        errorMessage = "Team access error. Please check your E2B team ID configuration.";
+      } else if (sandboxError.message?.includes('authentication')) {
+        errorMessage = "Authentication failed. Please check your E2B API key.";
       }
+
+      return NextResponse.json(
+        { 
+          success: false, 
+          message: errorMessage,
+          error: sandboxError.message 
+        },
+        { status: 500 }
+      );
     }
 
-  } catch (error) {
-    console.error("Code execution error:", error);
+  } catch (error: any) {
+    console.error("Execute code error:", error);
     return NextResponse.json(
-      {
-        success: false,
-        message: "An error occurred while executing code.",
-        error: (error as Error).message,
+      { 
+        success: false, 
+        message: "Internal server error",
+        error: error.message 
       },
       { status: 500 }
     );

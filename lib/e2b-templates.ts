@@ -1,5 +1,5 @@
 // E2B Template Configuration for Zyro AI Website Builder
-// Using existing vibegourab template
+// Using existing vibegourab template with team configuration
 
 export interface E2BTemplate {
   id: string;
@@ -7,6 +7,7 @@ export interface E2BTemplate {
   description: string;
   languages: string[];
   packages: string[];
+  teamId?: string;
 }
 
 // Available E2B templates - using your existing vibegourab template
@@ -19,20 +20,27 @@ export const E2B_TEMPLATES: Record<string, E2BTemplate> = {
     packages: [
       'python3', 'nodejs', 'npm', 'pip', 'jupyter', 'pandas', 'numpy', 
       'matplotlib', 'requests', 'flask', 'fastapi', 'react', 'next'
-    ]
+    ],
+    teamId: process.env.E2B_TEAM_ID // Team ID for template access
   }
 };
 
-// Default template - your existing one
+// Default template
 export const DEFAULT_TEMPLATE = 'vibegourab';
 
-/**
- * Determine the best E2B template based on file extension or code content
- * Since we only have one template, always return it
- */
-export function getTemplateForCode(filename: string, code?: string): string {
-  // Always use the vibegourab template since it's the only one available
-  return DEFAULT_TEMPLATE;
+// E2B Configuration
+export interface E2BConfig {
+  apiKey: string;
+  teamId?: string;
+  defaultTemplate: string;
+}
+
+export function getE2BConfig(): E2BConfig {
+  return {
+    apiKey: process.env.E2B_API_KEY || '',
+    teamId: process.env.E2B_TEAM_ID,
+    defaultTemplate: DEFAULT_TEMPLATE
+  };
 }
 
 /**
