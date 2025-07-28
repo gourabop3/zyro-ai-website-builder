@@ -17,66 +17,37 @@ type Props = {
   files: any;
 };
 
-// E2B Code Execution Hook
-function useE2BExecution() {
-  const [isExecuting, setIsExecuting] = useState(false);
-  const [executionResults, setExecutionResults] = useState<any>(null);
-
-  const executeCode = async (code: string, workspaceId?: string) => {
-    setIsExecuting(true);
-    try {
-      const response = await fetch("/api/execute-code", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          code: code.trim(),
-          workspaceId,
-        }),
-      });
-
-      const data = await response.json();
-      
-      if (data.success) {
-        setExecutionResults(data.data);
-        return data.data;
-      } else {
-        console.error("E2B execution failed:", data.message);
-        return null;
-      }
-    } catch (error) {
-      console.error("E2B execution error:", error);
-      return null;
-    } finally {
-      setIsExecuting(false);
-    }
-  };
-
-  return { executeCode, isExecuting, executionResults };
-}
-
-// Enhanced Code Editor with E2B
+// Enhanced Code Editor Component
 function EnhancedCodeEditor() {
   const { sandpack } = useSandpack();
-  const { executeCode } = useE2BExecution();
+  const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    // Listen for code changes and auto-execute Python code if detected
-    const checkAndExecutePython = async () => {
-      const activeFile = sandpack.files[sandpack.activeFile];
-      if (activeFile && sandpack.activeFile.endsWith('.py')) {
-        // Auto-execute Python files with E2B
-        await executeCode(activeFile.code);
-      }
-    };
+    // Listen for sandpack errors
+    if (sandpack.status === "error") {
+      setHasError(true);
+      console.error("Sandpack error:", sandpack.error);
+    } else {
+      setHasError(false);
+    }
+  }, [sandpack.status, sandpack.error]);
 
-    // Debounce the execution
-    const timeoutId = setTimeout(checkAndExecutePython, 1000);
-    return () => clearTimeout(timeoutId);
-  }, [sandpack.files, sandpack.activeFile]);
-
-  return <SandpackCodeEditor style={{ height: "70vh" }} />;
+  return (
+    <div className="relative">
+      {hasError && (
+        <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs z-10">
+          Build Error - Check Console
+        </div>
+      )}
+      <SandpackCodeEditor 
+        style={{ height: "70vh" }}
+        showTabs
+        showLineNumbers
+        showInlineErrors
+        wrapContent
+      />
+    </div>
+  );
 }
 
 function WorkSpaceEditor({ files }: Props) {
@@ -92,7 +63,15 @@ function WorkSpaceEditor({ files }: Props) {
             },
           }}
           options={{
-            externalResources: ["https://cdn.tailwindcss.com/"],
+            externalResources: [
+              "https://cdn.tailwindcss.com/",
+              "https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+            ],
+            bundlerURL: "https://bundler.codesandbox.io",
+            startRoute: "/",
+            skipEval: false,
+            recompileMode: "delayed",
+            recompileDelay: 300,
           }}
         >
           <Tabs defaultValue="code" className="w-full">
@@ -101,13 +80,13 @@ function WorkSpaceEditor({ files }: Props) {
                 value="code"
                 className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
               >
-                Code
+                Code Editor
               </TabsTrigger>
               <TabsTrigger
                 value="preview"
                 className="flex-1 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-lg transition-all"
               >
-                Preview
+                Live Preview
               </TabsTrigger>
             </TabsList>
             <TabsContent value="code" className="flex-1">

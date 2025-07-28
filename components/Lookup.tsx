@@ -5,6 +5,11 @@ export default {
     "Create Gym Managment Portal Dashboard",
     "Create Quizz App On History",
     "Create Login Signup Screen",
+    "Create E-commerce Product Page",
+    "Create Weather Dashboard",
+    "Create Social Media Feed",
+    "Create Chat Application",
+    "Create Portfolio Website",
   ],
   HERO_HEADING: "What do you want to build?",
   HERO_DESC: "Prompt, run, edit, and deploy full-stack web apps.",
@@ -22,8 +27,9 @@ export default {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>React App</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   </head>
   <body>
     <div id="root"></div> 
@@ -32,19 +38,42 @@ export default {
     },
     "/App.css": {
       code: `
-            @tailwind base;
+@tailwind base;
 @tailwind components;
-@tailwind utilities;`,
+@tailwind utilities;
+
+body {
+  font-family: 'Inter', sans-serif;
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-out;
+}`,
     },
     "/tailwind.config.js": {
       code: `
-            /** @type {import('tailwindcss').Config} */
+/** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
     "./src/**/*.{js,jsx,ts,tsx}",
+    "./public/index.html",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'inter': ['Inter', 'sans-serif'],
+      },
+      animation: {
+        'fade-in': 'fadeIn 0.5s ease-out',
+        'pulse': 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+      }
+    },
   },
   plugins: [],
 }`,
@@ -54,27 +83,79 @@ module.exports = {
 const config = {
   plugins: {
     tailwindcss: {},
+    autoprefixer: {},
   },
 };
 
-export default config;
-`,
+export default config;`,
     },
   },
   DEPENDANCY: {
-    postcss: "^8",
-    tailwindcss: "^3.4.1",
-    autoprefixer: "^10.0.0",
-    uuid4: "^2.0.3",
+    // CSS & Styling
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.4.1",
+    "autoprefixer": "^10.0.0",
     "tailwind-merge": "^2.4.0",
     "tailwindcss-animate": "^1.0.7",
+    "clsx": "^2.1.0",
+    
+    // Icons & UI
     "lucide-react": "^0.469.0",
+    "@heroicons/react": "^2.1.0",
+    "react-icons": "^5.0.0",
+    
+    // Routing & Navigation
     "react-router-dom": "^7.1.1",
-    firebase: "^11.1.0",
-    "@google/generative-ai": "^0.21.0",
+    
+    // State Management
+    "zustand": "^4.5.0",
+    "@tanstack/react-query": "^5.17.0",
+    
+    // Forms & Validation
+    "react-hook-form": "^7.49.0",
+    "zod": "^3.22.0",
+    "@hookform/resolvers": "^3.3.0",
+    
+    // Utilities
+    "uuid": "^9.0.0",
     "date-fns": "^4.1.0",
+    "lodash": "^4.17.21",
+    "axios": "^1.6.0",
+    
+    // Charts & Data Visualization
     "react-chartjs-2": "^5.3.0",
     "chart.js": "^4.4.7",
+    "recharts": "^2.10.0",
+    
+    // Animation & Effects
+    "framer-motion": "^11.0.0",
+    "react-spring": "^9.7.0",
+    
+    // Firebase & Backend
+    "firebase": "^11.1.0",
+    "@google/generative-ai": "^0.21.0",
+    
+    // Development & Testing
+    "prop-types": "^15.8.0",
+    "@types/uuid": "^9.0.0",
+    "@types/lodash": "^4.14.0",
+    
+    // UI Components
+    "react-select": "^5.8.0",
+    "react-datepicker": "^4.25.0",
+    "react-modal": "^3.16.0",
+    "react-toastify": "^10.0.0",
+    
+    // File & Media Handling
+    "react-dropzone": "^14.2.0",
+    "react-image-crop": "^11.0.0",
+    
+    // Math & Calculations
+    "mathjs": "^12.0.0",
+    
+    // Color & Theme
+    "color": "^4.2.0",
+    "chroma-js": "^2.4.0",
   },
   PRICING_DESC:
     "Start with a free account to speed up your workflow on public projects or boost your entire team with instantly-opening production environments.",
