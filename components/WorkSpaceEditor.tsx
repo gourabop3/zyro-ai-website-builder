@@ -6,15 +6,78 @@ import {
   SandpackLayout,
   SandpackPreview,
   SandpackProvider,
+  useSandpack,
 } from "@codesandbox/sandpack-react";
+import { useEffect, useState } from "react";
 import Lookup from "./Lookup";
 import SandPackPreviewClient from "./SandPackPreviewClient";
 import { useStore } from "@/lib/zustand";
 
-
 type Props = {
   files: any;
 };
+
+// E2B Code Execution Hook
+function useE2BExecution() {
+  const [isExecuting, setIsExecuting] = useState(false);
+  const [executionResults, setExecutionResults] = useState<any>(null);
+
+  const executeCode = async (code: string, workspaceId?: string) => {
+    setIsExecuting(true);
+    try {
+      const response = await fetch("/api/execute-code", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          code: code.trim(),
+          workspaceId,
+        }),
+      });
+
+      const data = await response.json();
+      
+      if (data.success) {
+        setExecutionResults(data.data);
+        return data.data;
+      } else {
+        console.error("E2B execution failed:", data.message);
+        return null;
+      }
+    } catch (error) {
+      console.error("E2B execution error:", error);
+      return null;
+    } finally {
+      setIsExecuting(false);
+    }
+  };
+
+  return { executeCode, isExecuting, executionResults };
+}
+
+// Enhanced Code Editor with E2B
+function EnhancedCodeEditor() {
+  const { sandpack } = useSandpack();
+  const { executeCode } = useE2BExecution();
+
+  useEffect(() => {
+    // Listen for code changes and auto-execute Python code if detected
+    const checkAndExecutePython = async () => {
+      const activeFile = sandpack.files[sandpack.activeFile];
+      if (activeFile && sandpack.activeFile.endsWith('.py')) {
+        // Auto-execute Python files with E2B
+        await executeCode(activeFile.code);
+      }
+    };
+
+    // Debounce the execution
+    const timeoutId = setTimeout(checkAndExecutePython, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [sandpack.files, sandpack.activeFile]);
+
+  return <SandpackCodeEditor style={{ height: "70vh" }} />;
+}
 
 function WorkSpaceEditor({ files }: Props) {
   return (
@@ -51,7 +114,7 @@ function WorkSpaceEditor({ files }: Props) {
               <div className="bg-muted/30 rounded-lg p-2 shadow-inner">
                 <SandpackLayout>
                   <SandpackFileExplorer style={{ height: "70vh" }} />
-                  <SandpackCodeEditor style={{ height: "70vh" }} />
+                  <EnhancedCodeEditor />
                 </SandpackLayout>
               </div>
             </TabsContent>
