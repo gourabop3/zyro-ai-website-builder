@@ -24,10 +24,10 @@ function EnhancedCodeEditor() {
   const [hasError, setHasError] = useState(false);
 
   useEffect(() => {
-    // Listen for sandpack errors
-    if (sandpack.status === "error") {
+    // Listen for sandpack errors using correct status values
+    if (sandpack.status === "timeout") {
       setHasError(true);
-      console.error("Sandpack error:", sandpack.error);
+      console.error("Sandpack timeout:", sandpack.error);
     } else {
       setHasError(false);
     }
@@ -37,7 +37,7 @@ function EnhancedCodeEditor() {
     <div className="relative h-full">
       {hasError && (
         <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded text-xs z-10">
-          Build Error - Check Console
+          Build Timeout - Try Refreshing
         </div>
       )}
       <SandpackCodeEditor 

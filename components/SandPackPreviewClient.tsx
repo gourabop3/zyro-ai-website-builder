@@ -64,6 +64,11 @@ function SandPackPreviewClient({}: Props) {
     overflow: "hidden"
   };
 
+  // Check for loading/error states using available statuses
+  const isLoading = sandpack.status === "initial";
+  const hasError = sandpack.status === "timeout";
+  const isReady = sandpack.status === "done" || sandpack.status === "idle";
+
   return (
     <div className="h-full w-full flex flex-col">
       {/* Preview Controls - Only show on desktop */}
@@ -116,21 +121,21 @@ function SandPackPreviewClient({}: Props) {
       )}
 
       {/* Loading State */}
-      {sandpack.status === "bundling" && (
+      {isLoading && (
         <div className="flex items-center justify-center h-32">
           <div className="flex items-center gap-2 text-muted-foreground">
             <div className="spinner"></div>
-            <span className="text-sm">Building...</span>
+            <span className="text-sm">Initializing...</span>
           </div>
         </div>
       )}
 
-      {/* Error State */}
-      {sandpack.status === "error" && (
+      {/* Error/Timeout State */}
+      {hasError && (
         <div className="flex items-center justify-center h-32 bg-red-50 text-red-700 rounded-lg m-2">
           <div className="text-center">
-            <div className="text-sm font-medium">Build Error</div>
-            <div className="text-xs mt-1">Check the code for syntax errors</div>
+            <div className="text-sm font-medium">Build Timeout</div>
+            <div className="text-xs mt-1">Try refreshing the preview</div>
           </div>
         </div>
       )}
